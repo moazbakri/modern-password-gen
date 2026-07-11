@@ -1,32 +1,50 @@
-# React + TypeScript + Vite
+# 🛡️ CipherForge - Modern Password Generator
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A sleek, lightweight, and cryptographically secure password generator web application built on Ubuntu inside a virtualized environment. 
 
-Currently, two official plugins are available:
+This tool runs **100% client-side**—passwords are generated entirely within the user's browser context and are never transmitted across a network, ensuring absolute data privacy.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠️ The Tech Stack
 
-## React Compiler
+*   **Frontend Ecosystem:** React (TypeScript) + Vite
+*   **Styling Engine:** Tailwind CSS v4 (Utilizing the updated CSS-first `@import "tailwindcss"` pipeline)
+*   **Cryptographic Core:** Native Web Crypto API (`window.crypto.getRandomValues()`)
+*   **Server Tooling:** `@vitejs/plugin-basic-ssl` (Forces HTTPS execution to satisfy browser security boundaries)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the Oxlint configuration
+## 💡 Key Infrastructure Hurdles & Fixes
 
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
+### 1. Tailwind CSS v4 Configuration Shift
+During installation, running `npx tailwindcss init -p` caused remote network errors because Tailwind v4 no longer uses a `tailwind.config.js` framework. 
+*   **Solution:** Removed the legacy configuration files. Integrated `@tailwindcss/vite` straight into `vite.config.ts` as a native compiler plugin and called `@import "tailwindcss";` at the absolute top of `src/index.css`.
 
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
-```
+### 2. Browser Clipboard Security Block
+When interacting with the app from a host machine browser via a VM network IP, `navigator.clipboard` failed silently because modern browsers restrict clipboard access to secure contexts (`https://` or `localhost`).
+*   **Solution:** 
+    1. Added a custom local domain mapping (`passgen.moaz.com`) inside the host machine's `hosts` file.
+    2. Updated `vite.config.ts` with `server.allowedHosts` to whitelist the domain.
+    3. Integrated `@vitejs/plugin-basic-ssl` to serve the app over an encrypted `https://` tunnel, unlocking the browser's native API privileges.
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+---
+
+## 🚀 Local Development Setup
+
+To run this project locally on your Ubuntu system or inside your VM setup:
+
+### Prerequisites
+Ensure Node.js v20+ and npm are installed on your environment.
+
+### Installation
+```bash
+# Clone the repository
+git clone [https://github.com/YOUR_USERNAME/modern-password-gen.git](https://github.com/YOUR_USERNAME/modern-password-gen.git)
+cd modern-password-gen
+
+# Install dependencies
+npm install
+
+Running Locally
+npm run dev
+
+Once the dev engine is live, navigate to https://passgen.moaz.com:5173 in your browser. Accept the local self-signed certificate warning to access the secure clipboard features.
